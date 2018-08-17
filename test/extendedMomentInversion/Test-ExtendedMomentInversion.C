@@ -38,6 +38,8 @@ Description
 #include "univariateMomentSet.H"
 #include "extendedMomentInversion.H"
 
+#include <string>
+
 using namespace Foam;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -46,11 +48,32 @@ int main(int argc, char *argv[])
 {
     #include "createFields.H"
 
-    Info << "Testing extendedMomentInversion\n" << endl;
+    Info << "Testing extendedMomentInversion" << endl;
 
-    label nMoments = 5;
+    int num_args = 0;
+    try {
+        num_args = std::stoi(argv[1]);
+    } catch(...) {
+        Info << "Problem parsing arguments! Couldn't parse the first argument" << endl;
+        return -1;
+    }
+
+    if (argc-2 != num_args) {
+        Info << "Please pass the correct number of arguments!" << endl;
+	return -1;
+    } 
+
+    label nMoments = num_args;
     word support = "RPlus";
     univariateMomentSet moments(nMoments, support);
+
+    for (int i=0; i< num_args; ++i) {
+        try {
+            moments[i] = std::stod(argv[i+2]);
+	} catch(...) {
+            Info << "Problem parsing argument as double!" << endl;
+	}
+    }
 
     // Dirac delta function
 //     moments[0] = 1.0;
@@ -60,11 +83,11 @@ int main(int argc, char *argv[])
 //     moments[4] = 1.0;
 
 //  Valid moment set
-   moments[0] = 1.0;
-   moments[1] = 2.708217669;
-   moments[2] = 8.951330468;
-   moments[3] = 35.95258119;
-   moments[4] = 174.4370267;
+//   moments[0] = 1.0;
+//   moments[1] = 2.708217669;
+//   moments[2] = 8.951330468;
+//   moments[3] = 35.95258119;
+//   moments[4] = 174.4370267;
 
 //  Unrealizable moment star
 //     moments[0] = 0.567128698550116;
@@ -131,7 +154,7 @@ int main(int argc, char *argv[])
 //    moments[5] = 5.4501;
 //    moments[6] = 15.75531;
 
-    Info << setprecision(16);
+    Info << setprecision(17);
     Info << "Input moments\n" << endl;
 
     for (label momentI = 0; momentI < nMoments; momentI++)
@@ -170,6 +193,7 @@ int main(int argc, char *argv[])
     Info << "\nStoring quadrature." << endl;
 
     OFstream outputFile("./secondaryQuadrature");
+    outputFile << setprecision(17);
 
     label nPrimaryNodes = EQMOM->nPrimaryNodes();
     label nSecondaryNodes = EQMOM->nSecondaryNodes();
