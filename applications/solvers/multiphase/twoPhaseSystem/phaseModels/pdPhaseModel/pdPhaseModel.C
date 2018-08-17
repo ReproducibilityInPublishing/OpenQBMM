@@ -917,7 +917,7 @@ void Foam::pdPhaseModel::averageTransport(const PtrList<fvVectorMatrix>& AEqns)
         volScalarField tauC
         (
             "tauC",
-            (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*HUGE
+            (0.5 + 0.5*tanh(((*this) - 0.63)/0.01))*GREAT
         );
 
         tauC.dimensions().reset(inv(dimTime));
